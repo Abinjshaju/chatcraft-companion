@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { PaperPlaneIcon } from "lucide-react";
+import { Send } from "lucide-react";
 import { useState } from "react";
 
 interface ChatInputProps {
@@ -27,7 +27,7 @@ export const ChatInput = ({ onSendMessage }: ChatInputProps) => {
         className="min-h-[50px] max-h-[200px]"
       />
       <Button type="submit" size="icon" className="h-[50px]">
-        <PaperPlaneIcon className="h-4 w-4" />
+        <Send className="h-4 w-4" />
       </Button>
     </form>
   );
