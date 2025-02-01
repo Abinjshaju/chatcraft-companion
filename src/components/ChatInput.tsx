@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Send, FileUp } from "lucide-react";
+import { Send, FileUp, Globe } from "lucide-react";
 import { useState } from "react";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 interface ChatInputProps {
   onSendMessage: (message: string) => void;
@@ -43,6 +44,16 @@ export const ChatInput = ({ onSendMessage, onFileUpload }: ChatInputProps) => {
       >
         <FileUp className="h-4 w-4" />
       </Button>
+      <Sheet>
+        <SheetTrigger asChild>
+          <Button variant="ghost" size="icon" className="h-[50px]">
+            <Globe className="h-4 w-4" />
+          </Button>
+        </SheetTrigger>
+        <SheetContent side="right" className="w-full sm:max-w-lg">
+          {/* Content will be added later */}
+        </SheetContent>
+      </Sheet>
       <Textarea
         value={message}
         onChange={(e) => setMessage(e.target.value)}
