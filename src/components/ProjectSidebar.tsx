@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { PlusCircle, FolderIcon, Archive, Folder, File, Clip } from "lucide-react";
+import { PlusCircle, FolderIcon, Archive, Folder, File, FileUp } from "lucide-react";
 import { useState } from "react";
 import { Input } from "./ui/input";
 import { Separator } from "./ui/separator";

@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Send, Clip } from "lucide-react";
+import { Send, FileUp } from "lucide-react";
 import { useState } from "react";
 
 interface ChatInputProps {
@@ -41,7 +41,7 @@ export const ChatInput = ({ onSendMessage, onFileUpload }: ChatInputProps) => {
         className="h-[50px]"
         onClick={() => document.getElementById("file-upload")?.click()}
       >
-        <Clip className="h-4 w-4" />
+        <FileUp className="h-4 w-4" />
       </Button>
       <Textarea
         value={message}
