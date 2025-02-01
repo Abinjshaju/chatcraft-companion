@@ -3,7 +3,7 @@ import { ProjectSidebar } from "@/components/ProjectSidebar";
 import { ChatInput } from "@/components/ChatInput";
 import { ChatMessage } from "@/components/ChatMessage";
 import { useToast } from "@/hooks/use-toast";
-import { Toaster } from "sonner";
+import { toast as sonnerToast } from "sonner";
 
 interface Message {
   id: string;
@@ -34,9 +34,9 @@ const Index = () => {
     };
     setProjects([...projects, newProject]);
     setActiveProject(newProject.id);
-    toast({
-      title: "Project created",
+    sonnerToast.success("Project created", {
       description: `${name} has been created successfully.`,
+      position: "top-right",
     });
   };
 
@@ -74,9 +74,9 @@ const Index = () => {
           : project
       )
     );
-    toast({
-      title: "File uploaded",
+    sonnerToast.success("File uploaded", {
       description: `${file.name} has been uploaded to the project.`,
+      position: "top-right",
     });
   };
 
@@ -91,9 +91,9 @@ const Index = () => {
           : project
       )
     );
-    toast({
-      title: "Project archived",
+    sonnerToast.success("Project archived", {
       description: "The project has been moved to the archive.",
+      position: "top-right",
     });
   };
 
@@ -108,13 +108,14 @@ const Index = () => {
           : project
       )
     );
-    toast({
-      title: "Project unarchived",
+    sonnerToast.success("Project unarchived", {
       description: "The project has been restored from the archive.",
+      position: "top-right",
     });
   };
 
   const activeProjectData = projects.find((p) => p.id === activeProject);
+  const hasMessages = activeProjectData?.messages.length > 0;
 
   return (
     <div className="flex h-screen bg-background font-sans">
@@ -129,21 +130,33 @@ const Index = () => {
       />
 
       <div className="flex-1 flex flex-col">
-        <Toaster position="top-right" />
         {activeProject ? (
           <>
-            <div className="border-b p-4 bg-white">
-              <h2 className="text-lg font-semibold">{activeProjectData?.name}</h2>
-            </div>
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              {activeProjectData?.messages.map((message) => (
-                <ChatMessage
-                  key={message.id}
-                  content={message.content}
-                  isUser={message.isUser}
-                />
-              ))}
-            </div>
+            {hasMessages ? (
+              <>
+                <div className="border-b p-4 bg-white">
+                  <h2 className="text-lg font-semibold">{activeProjectData?.name}</h2>
+                </div>
+                <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                  {activeProjectData?.messages.map((message) => (
+                    <ChatMessage
+                      key={message.id}
+                      content={message.content}
+                      isUser={message.isUser}
+                    />
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div className="flex-1 flex flex-col items-center justify-center bg-[#1A1F2C] text-white">
+                <h1 className="text-4xl font-semibold mb-8">What can I help with?</h1>
+                <div className="max-w-2xl w-full px-4">
+                  <div className="text-sm text-gray-400 mb-4 text-center">
+                    Start a conversation and I'll help you with your project
+                  </div>
+                </div>
+              </div>
+            )}
             <ChatInput 
               onSendMessage={handleSendMessage}
               onFileUpload={(file) => activeProject && handleFileUpload(activeProject, file)}
