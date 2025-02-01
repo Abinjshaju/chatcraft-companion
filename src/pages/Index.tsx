@@ -3,6 +3,7 @@ import { ProjectSidebar } from "@/components/ProjectSidebar";
 import { ChatInput } from "@/components/ChatInput";
 import { ChatMessage } from "@/components/ChatMessage";
 import { useToast } from "@/hooks/use-toast";
+import { Toaster } from "sonner";
 
 interface Message {
   id: string;
@@ -96,20 +97,39 @@ const Index = () => {
     });
   };
 
+  const handleProjectUnarchive = (projectId: string) => {
+    setProjects(
+      projects.map((project) =>
+        project.id === projectId
+          ? {
+              ...project,
+              isArchived: false,
+            }
+          : project
+      )
+    );
+    toast({
+      title: "Project unarchived",
+      description: "The project has been restored from the archive.",
+    });
+  };
+
   const activeProjectData = projects.find((p) => p.id === activeProject);
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex h-screen bg-background font-sans">
       <ProjectSidebar
         projects={projects}
         activeProject={activeProject}
         onProjectSelect={setActiveProject}
         onProjectCreate={handleCreateProject}
         onProjectArchive={handleProjectArchive}
+        onProjectUnarchive={handleProjectUnarchive}
         onFileUpload={handleFileUpload}
       />
 
       <div className="flex-1 flex flex-col">
+        <Toaster position="top-right" />
         {activeProject ? (
           <>
             <div className="border-b p-4 bg-white">
