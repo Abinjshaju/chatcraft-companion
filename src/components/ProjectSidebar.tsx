@@ -5,6 +5,7 @@ import { Input } from "./ui/input";
 import { Separator } from "./ui/separator";
 import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
 
+
 interface Project {
   id: string;
   name: string;
@@ -52,8 +53,8 @@ export const ProjectSidebar = ({
   };
 
   const toggleProject = (projectId: string) => {
-    setExpandedProjects(prev => 
-      prev.includes(projectId) 
+    setExpandedProjects(prev =>
+      prev.includes(projectId)
         ? prev.filter(id => id !== projectId)
         : [...prev, projectId]
     );
@@ -64,18 +65,13 @@ export const ProjectSidebar = ({
 
   return (
     <div className="w-64 bg-secondary border-r p-4 flex flex-col gap-4 font-sans">
-      <div className="h-12 flex items-center justify-between">
-        <div className="w-12 h-12 bg-muted rounded-lg"></div>
-        <Sheet>
-          <SheetTrigger asChild>
-            <Button variant="ghost" size="icon" className="ml-2">
-              <Globe className="h-4 w-4" />
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="right" className="w-full sm:max-w-lg">
-            {/* Content will be added later */}
-          </SheetContent>
-        </Sheet>
+
+
+      <div
+        className="w-12 h-12 bg-muted rounded-lg logoContainer"
+        style={{ width: "100%" }}
+      >
+        <img src="src/assets/images/logo.svg" alt="Logo" />
       </div>
 
       <div className="space-y-2">

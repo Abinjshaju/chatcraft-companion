@@ -5,6 +5,7 @@ import { ChatMessage } from "@/components/ChatMessage";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "sonner";
 
+
 interface Message {
   id: string;
   content: string;
