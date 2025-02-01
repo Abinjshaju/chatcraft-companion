@@ -2,9 +2,7 @@ import { useState } from "react";
 import { ProjectSidebar } from "@/components/ProjectSidebar";
 import { ChatInput } from "@/components/ChatInput";
 import { ChatMessage } from "@/components/ChatMessage";
-import { Button } from "@/components/ui/button";
-import { Upload } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 interface Message {
   id: string;
@@ -16,7 +14,8 @@ interface Project {
   id: string;
   name: string;
   messages: Message[];
-  documents: string[];
+  files: string[];
+  isArchived: boolean;
 }
 
 const Index = () => {
@@ -29,7 +28,8 @@ const Index = () => {
       id: Date.now().toString(),
       name,
       messages: [],
-      documents: [],
+      files: [],
+      isArchived: false,
     };
     setProjects([...projects, newProject]);
     setActiveProject(newProject.id);
@@ -62,10 +62,37 @@ const Index = () => {
     );
   };
 
-  const handleFileUpload = () => {
+  const handleFileUpload = (projectId: string, file: File) => {
+    setProjects(
+      projects.map((project) =>
+        project.id === projectId
+          ? {
+              ...project,
+              files: [...project.files, file.name],
+            }
+          : project
+      )
+    );
     toast({
-      title: "Coming Soon",
-      description: "Document upload functionality will be available in the next version.",
+      title: "File uploaded",
+      description: `${file.name} has been uploaded to the project.`,
+    });
+  };
+
+  const handleProjectArchive = (projectId: string) => {
+    setProjects(
+      projects.map((project) =>
+        project.id === projectId
+          ? {
+              ...project,
+              isArchived: true,
+            }
+          : project
+      )
+    );
+    toast({
+      title: "Project archived",
+      description: "The project has been moved to the archive.",
     });
   };
 
@@ -78,17 +105,15 @@ const Index = () => {
         activeProject={activeProject}
         onProjectSelect={setActiveProject}
         onProjectCreate={handleCreateProject}
+        onProjectArchive={handleProjectArchive}
+        onFileUpload={handleFileUpload}
       />
 
       <div className="flex-1 flex flex-col">
         {activeProject ? (
           <>
-            <div className="border-b p-4 bg-white flex justify-between items-center">
+            <div className="border-b p-4 bg-white">
               <h2 className="text-lg font-semibold">{activeProjectData?.name}</h2>
-              <Button variant="outline" onClick={handleFileUpload}>
-                <Upload className="h-4 w-4 mr-2" />
-                Upload Document
-              </Button>
             </div>
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
               {activeProjectData?.messages.map((message) => (
@@ -99,7 +124,10 @@ const Index = () => {
                 />
               ))}
             </div>
-            <ChatInput onSendMessage={handleSendMessage} />
+            <ChatInput 
+              onSendMessage={handleSendMessage}
+              onFileUpload={(file) => activeProject && handleFileUpload(activeProject, file)}
+            />
           </>
         ) : (
           <div className="flex-1 flex items-center justify-center text-muted-foreground">
