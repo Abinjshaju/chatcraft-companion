@@ -163,7 +163,7 @@ const Index = () => {
                 </div>
               </>
             ) : (
-              <div className="flex-1 flex flex-col items-center justify-center bg-[#1A1F2C] text-white">
+              <div className="flex-1 flex flex-col items-center justify-center bg-white">
                 <h1 className="text-4xl font-semibold mb-8">What can I help with?</h1>
                 <div className="max-w-2xl w-full px-4">
                   <div className="text-sm text-gray-400 mb-8 text-center">
