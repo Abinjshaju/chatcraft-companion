@@ -5,7 +5,6 @@ import { Input } from "./ui/input";
 import { Separator } from "./ui/separator";
 import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
 
-
 interface Project {
   id: string;
   name: string;
@@ -101,8 +100,9 @@ export const ProjectSidebar = ({
         {activeProjects.map((project) => (
           <div key={project.id} className="space-y-1">
             <div
-              className={`flex items-center gap-2 p-2 rounded-lg hover:bg-orange-500 transition ${activeProject === project.id ? "bg-orange-500 text-white" : ""
-                }`}
+              className={`flex items-center gap-2 p-2 rounded-lg hover:bg-primary/10 transition ${
+                activeProject === project.id ? "bg-primary/20 text-primary" : ""
+              }`}
             >
               <Button
                 variant="ghost"
