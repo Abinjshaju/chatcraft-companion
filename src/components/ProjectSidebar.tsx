@@ -1,9 +1,8 @@
 import { Button } from "@/components/ui/button";
-import { PlusCircle, FolderIcon, Archive, Folder, File, Share, Pencil, Trash2, MoreVertical, Sun, Moon } from "lucide-react";
-import { useState, useEffect } from "react";
+import { PlusCircle, FolderIcon, Archive, File, Share, Pencil, Trash2, MoreVertical, Sun, Moon, ChevronDown } from "lucide-react";
+import { useState } from "react";
 import { Input } from "./ui/input";
 import { Separator } from "./ui/separator";
-import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -40,7 +39,6 @@ export const ProjectSidebar = ({
 }: ProjectSidebarProps) => {
   const [isCreating, setIsCreating] = useState(false);
   const [newProjectName, setNewProjectName] = useState("");
-  const [selectedProjectFiles, setSelectedProjectFiles] = useState<string | null>(null);
   const [expandedProjects, setExpandedProjects] = useState<string[]>([]);
   const { theme, setTheme } = useTheme();
 
@@ -56,10 +54,6 @@ export const ProjectSidebar = ({
     setExpandedProjects((prev) =>
       prev.includes(projectId) ? prev.filter((id) => id !== projectId) : [...prev, projectId]
     );
-  };
-
-  const switchProject = (projectId: string) => {
-    onProjectSelect(projectId);
   };
 
   const activeProjects = projects.filter((p) => !p.isArchived);
@@ -108,10 +102,22 @@ export const ProjectSidebar = ({
               <Button
                 variant="ghost"
                 className="w-full justify-start text-left"
-                onClick={() => switchProject(project.id)}
+                onClick={() => onProjectSelect(project.id)}
               >
                 <FolderIcon className="mr-2 h-4 w-4" />
                 {project.name}
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => toggleProject(project.id)}
+              >
+                <ChevronDown
+                  className={`h-4 w-4 transition-transform ${
+                    expandedProjects.includes(project.id) ? "rotate-180" : ""
+                  }`}
+                />
               </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -136,28 +142,15 @@ export const ProjectSidebar = ({
               </DropdownMenu>
             </div>
 
-            {expandedProjects.includes(project.id) && (
-              <>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="w-full justify-start pl-8"
-                  onClick={() => setSelectedProjectFiles(selectedProjectFiles === project.id ? null : project.id)}
-                >
-                  <Folder className="mr-2 h-4 w-4" />
-                  Files ({project.files?.length || 0})
-                </Button>
-                {selectedProjectFiles === project.id && project.files && (
-                  <div className="pl-12 space-y-1">
-                    {project.files.map((file, index) => (
-                      <div key={index} className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <File className="h-3 w-3" />
-                        {file}
-                      </div>
-                    ))}
+            {expandedProjects.includes(project.id) && project.files && (
+              <div className="pl-8 space-y-1">
+                {project.files.map((file, index) => (
+                  <div key={index} className="flex items-center gap-2 text-sm text-muted-foreground p-1 rounded-md hover:bg-primary/5">
+                    <File className="h-3 w-3" />
+                    {file}
                   </div>
-                )}
-              </>
+                ))}
+              </div>
             )}
           </div>
         ))}
