@@ -53,11 +53,13 @@ export const ProjectSidebar = ({
   };
 
   const toggleProject = (projectId: string) => {
-    setExpandedProjects(prev =>
-      prev.includes(projectId)
-        ? prev.filter(id => id !== projectId)
-        : [...prev, projectId]
+    setExpandedProjects((prev) =>
+      prev.includes(projectId) ? prev.filter((id) => id !== projectId) : [...prev, projectId]
     );
+  };
+
+  const switchProject = (projectId: string) => {
+    onProjectSelect(projectId);
   };
 
   const activeProjects = projects.filter((p) => !p.isArchived);
@@ -65,22 +67,13 @@ export const ProjectSidebar = ({
 
   return (
     <div className="w-64 bg-secondary border-r p-4 flex flex-col gap-4 font-sans">
-
-
-      <div
-        className="w-12 h-12 bg-muted rounded-lg logoContainer"
-        style={{ width: "100%" }}
-      >
-        <img src="src/assets/images/logo.svg" alt="Logo" />
+      <div className="w-full flex justify-center">
+        <img src="src/assets/images/logo.svg" alt="Logo"/>
       </div>
 
       <div className="space-y-2">
         {!isCreating ? (
-          <Button
-            onClick={() => setIsCreating(true)}
-            variant="outline"
-            className="w-full"
-          >
+          <Button onClick={() => setIsCreating(true)} variant="outline" className="w-full">
             <PlusCircle className="mr-2 h-4 w-4" />
             New Project
           </Button>
@@ -93,18 +86,10 @@ export const ProjectSidebar = ({
               className="w-full"
             />
             <div className="flex gap-2">
-              <Button
-                onClick={handleCreateProject}
-                variant="default"
-                className="flex-1"
-              >
+              <Button onClick={handleCreateProject} variant="default" className="flex-1">
                 Create
               </Button>
-              <Button
-                onClick={() => setIsCreating(false)}
-                variant="outline"
-                className="flex-1"
-              >
+              <Button onClick={() => setIsCreating(false)} variant="outline" className="flex-1">
                 Cancel
               </Button>
             </div>
@@ -115,29 +100,37 @@ export const ProjectSidebar = ({
       <div className="space-y-2">
         {activeProjects.map((project) => (
           <div key={project.id} className="space-y-1">
-            <div className="flex items-center gap-2">
+            <div
+              className={`flex items-center gap-2 p-2 rounded-lg hover:bg-orange-500 transition ${activeProject === project.id ? "bg-orange-500 text-white" : ""
+                }`}
+            >
               <Button
-                variant={activeProject === project.id ? "default" : "ghost"}
-                className="w-full justify-start"
-                onClick={() => toggleProject(project.id)}
+                variant="ghost"
+                className="w-full justify-start text-left"
+                onClick={() => switchProject(project.id)}
               >
                 <FolderIcon className="mr-2 h-4 w-4" />
                 {project.name}
-                {expandedProjects.includes(project.id) ? (
-                  <ChevronUp className="ml-auto h-4 w-4" />
-                ) : (
-                  <ChevronDown className="ml-auto h-4 w-4" />
-                )}
               </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8"
-                onClick={() => onProjectArchive?.(project.id)}
-              >
-                <Archive className="h-4 w-4" />
-              </Button>
+              <div className="flex gap-1">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => onProjectArchive?.(project.id)}
+                >
+                  <Archive className="h-4 w-4" />
+                </Button>
+                <button onClick={() => toggleProject(project.id)}>
+                  {expandedProjects.includes(project.id) ? (
+                    <ChevronUp className="h-4 w-4" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
             </div>
+
             {expandedProjects.includes(project.id) && (
               <>
                 <Button

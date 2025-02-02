@@ -11,9 +11,10 @@ interface ChatInputProps {
 
 export const ChatInput = ({ onSendMessage, onFileUpload }: ChatInputProps) => {
   const [message, setMessage] = useState("");
+  const [isGlobeActive, setIsGlobeActive] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = (e?: React.FormEvent) => {
+    e?.preventDefault();
     if (message.trim()) {
       onSendMessage(message);
       setMessage("");
@@ -27,8 +28,19 @@ export const ChatInput = ({ onSendMessage, onFileUpload }: ChatInputProps) => {
     }
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit();
+    }
+  };
+
   return (
-    <form onSubmit={handleSubmit} className="flex gap-2 p-4 border-t bg-white">
+    <form
+      onSubmit={handleSubmit}
+      className="flex items-center gap-3 p-4 border-t bg-secondary shadow-md"
+    >
+      {/* File Upload Button */}
       <input
         type="file"
         id="file-upload"
@@ -39,29 +51,41 @@ export const ChatInput = ({ onSendMessage, onFileUpload }: ChatInputProps) => {
         type="button"
         variant="ghost"
         size="icon"
-        className="h-[50px]"
+        className="h-12 w-12 rounded-xl hover:bg-accent transition"
         onClick={() => document.getElementById("file-upload")?.click()}
       >
-        <FileUp className="h-4 w-4" />
+        <FileUp className="h-5 w-5 text-muted-foreground" />
       </Button>
-      <Sheet>
-        <SheetTrigger asChild>
-          <Button variant="ghost" size="icon" className="h-[50px]">
-            <Globe className="h-4 w-4" />
-          </Button>
-        </SheetTrigger>
-        <SheetContent side="right" className="w-full sm:max-w-lg">
-          {/* Content will be added later */}
-        </SheetContent>
-      </Sheet>
+
+      {/* Globe Toggle Button */}
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        className={`h-12 w-12 rounded-xl transition ${
+          isGlobeActive ? "bg-primary text-white" : "hover:bg-accent"
+        }`}
+        onClick={() => setIsGlobeActive(!isGlobeActive)}
+      >
+        <Globe className="h-5 w-5" />
+      </Button>
+
+      {/* Text Input */}
       <Textarea
         value={message}
         onChange={(e) => setMessage(e.target.value)}
+        onKeyDown={handleKeyDown}
         placeholder="Type your message here..."
-        className="min-h-[50px] max-h-[200px]"
+        className="flex-1 min-h-[50px] max-h-[200px] text-sm p-3 rounded-xl border border-muted-foreground focus:ring-2 focus:ring-primary"
       />
-      <Button type="submit" size="icon" className="h-[50px]">
-        <Send className="h-4 w-4" />
+
+      {/* Send Button with Text */}
+      <Button
+        type="submit"
+        className="h-12 px-4 rounded-xl bg-primary hover:bg-primary/90 transition flex items-center gap-2"
+      >
+        <span className="text-white font-medium">Send</span>
+        <Send className="h-5 w-5 text-white" />
       </Button>
     </form>
   );
