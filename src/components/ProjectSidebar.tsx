@@ -1,9 +1,16 @@
 import { Button } from "@/components/ui/button";
-import { PlusCircle, FolderIcon, Archive, Folder, File, FileUp, Globe, ArchiveRestore, ChevronDown, ChevronUp } from "lucide-react";
-import { useState } from "react";
+import { PlusCircle, FolderIcon, Archive, Folder, File, Share, Pencil, Trash2, MoreVertical, Sun, Moon } from "lucide-react";
+import { useState, useEffect } from "react";
 import { Input } from "./ui/input";
 import { Separator } from "./ui/separator";
 import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useTheme } from "next-themes";
 
 interface Project {
   id: string;
@@ -35,19 +42,13 @@ export const ProjectSidebar = ({
   const [newProjectName, setNewProjectName] = useState("");
   const [selectedProjectFiles, setSelectedProjectFiles] = useState<string | null>(null);
   const [expandedProjects, setExpandedProjects] = useState<string[]>([]);
+  const { theme, setTheme } = useTheme();
 
   const handleCreateProject = () => {
     if (newProjectName.trim()) {
       onProjectCreate(newProjectName);
       setNewProjectName("");
       setIsCreating(false);
-    }
-  };
-
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>, projectId: string) => {
-    const file = event.target.files?.[0];
-    if (file && onFileUpload) {
-      onFileUpload(projectId, file);
     }
   };
 
@@ -65,7 +66,7 @@ export const ProjectSidebar = ({
   const archivedProjects = projects.filter((p) => p.isArchived);
 
   return (
-    <div className="w-64 bg-secondary border-r p-4 flex flex-col gap-4 font-sans">
+    <div className="w-64 bg-secondary border-r p-4 flex flex-col gap-4 font-sans relative">
       <div className="w-full flex justify-center">
         <img src="src/assets/images/logo.svg" alt="Logo"/>
       </div>
@@ -112,23 +113,27 @@ export const ProjectSidebar = ({
                 <FolderIcon className="mr-2 h-4 w-4" />
                 {project.name}
               </Button>
-              <div className="flex gap-1">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8"
-                  onClick={() => onProjectArchive?.(project.id)}
-                >
-                  <Archive className="h-4 w-4" />
-                </Button>
-                <button onClick={() => toggleProject(project.id)}>
-                  {expandedProjects.includes(project.id) ? (
-                    <ChevronUp className="h-4 w-4" />
-                  ) : (
-                    <ChevronDown className="h-4 w-4" />
-                  )}
-                </button>
-              </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem>
+                    <Share className="mr-2 h-4 w-4" /> Share
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <Pencil className="mr-2 h-4 w-4" /> Rename
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onProjectArchive?.(project.id)}>
+                    <Archive className="mr-2 h-4 w-4" /> Archive
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="text-destructive">
+                    <Trash2 className="mr-2 h-4 w-4" /> Delete
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
 
             {expandedProjects.includes(project.id) && (
@@ -179,13 +184,22 @@ export const ProjectSidebar = ({
                   className="h-8 w-8"
                   onClick={() => onProjectUnarchive?.(project.id)}
                 >
-                  <ArchiveRestore className="h-4 w-4" />
+                  <Archive className="h-4 w-4" />
                 </Button>
               </div>
             ))}
           </div>
         </>
       )}
+
+      <Button
+        variant="ghost"
+        size="icon"
+        className="absolute bottom-4 left-4"
+        onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+      >
+        {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+      </Button>
     </div>
   );
 };
