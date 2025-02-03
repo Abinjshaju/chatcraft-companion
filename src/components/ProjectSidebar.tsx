@@ -1,16 +1,12 @@
 import { Button } from "@/components/ui/button";
-import { PlusCircle, FolderIcon, Archive, File, Share, Pencil, Trash2, MoreVertical, Sun, Moon, ChevronDown } from "lucide-react";
+import { Archive, Sun, Moon } from "lucide-react";
 import { useState } from "react";
-import { Input } from "./ui/input";
 import { Separator } from "./ui/separator";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { useTheme } from "next-themes";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Input } from "./ui/input";
+import { CreateProject } from "./project/CreateProject";
+import { ProjectItem } from "./project/ProjectItem";
 
 interface Project {
   id: string;
@@ -37,36 +33,11 @@ export const ProjectSidebar = ({
   onProjectCreate,
   onProjectArchive,
   onProjectUnarchive,
-  onFileUpload,
   setProjects,
 }: ProjectSidebarProps) => {
-  const [isCreating, setIsCreating] = useState(false);
-  const [newProjectName, setNewProjectName] = useState("");
-  const [expandedProjects, setExpandedProjects] = useState<string[]>([]);
-  const [expandedFiles, setExpandedFiles] = useState<string[]>([]);
   const [isRenaming, setIsRenaming] = useState(false);
   const [projectToRename, setProjectToRename] = useState<{id: string, name: string} | null>(null);
   const { theme, setTheme } = useTheme();
-
-  const handleCreateProject = () => {
-    if (newProjectName.trim()) {
-      onProjectCreate(newProjectName);
-      setNewProjectName("");
-      setIsCreating(false);
-    }
-  };
-
-  const toggleProject = (projectId: string) => {
-    setExpandedProjects((prev) =>
-      prev.includes(projectId) ? prev.filter((id) => id !== projectId) : [...prev, projectId]
-    );
-  };
-
-  const toggleFiles = (projectId: string) => {
-    setExpandedFiles((prev) =>
-      prev.includes(projectId) ? prev.filter((id) => id !== projectId) : [...prev, projectId]
-    );
-  };
 
   const handleRename = (projectId: string, currentName: string) => {
     setProjectToRename({ id: projectId, name: currentName });
@@ -75,24 +46,20 @@ export const ProjectSidebar = ({
 
   const handleRenameSubmit = () => {
     if (projectToRename && projectToRename.name.trim()) {
-      const updatedProjects = projects.map(project => 
+      setProjects(projects.map(project => 
         project.id === projectToRename.id 
           ? { ...project, name: projectToRename.name }
           : project
-      );
-      // Update the projects state in the parent component
-      setProjects(updatedProjects);
+      ));
       setIsRenaming(false);
       setProjectToRename(null);
     }
   };
 
   const handleDelete = (projectId: string) => {
-    const updatedProjects = projects.filter(project => project.id !== projectId);
-    // Update the projects state in the parent component
-    setProjects(updatedProjects);
+    setProjects(projects.filter(project => project.id !== projectId));
     if (activeProject === projectId) {
-      onProjectSelect(updatedProjects[0]?.id || null);
+      onProjectSelect(projects[0]?.id || null);
     }
   };
 
@@ -105,112 +72,19 @@ export const ProjectSidebar = ({
         <img src="src/assets/images/logo.svg" alt="Logo"/>
       </div>
 
-      <div className="space-y-2">
-        {!isCreating ? (
-          <Button onClick={() => setIsCreating(true)} variant="outline" className="w-full">
-            <PlusCircle className="mr-2 h-4 w-4" />
-            New Project
-          </Button>
-        ) : (
-          <div className="space-y-2">
-            <Input
-              value={newProjectName}
-              onChange={(e) => setNewProjectName(e.target.value)}
-              placeholder="Project name"
-              className="w-full"
-            />
-            <div className="flex gap-2">
-              <Button onClick={handleCreateProject} variant="default" className="flex-1">
-                Create
-              </Button>
-              <Button onClick={() => setIsCreating(false)} variant="outline" className="flex-1">
-                Cancel
-              </Button>
-            </div>
-          </div>
-        )}
-      </div>
+      <CreateProject onProjectCreate={onProjectCreate} />
 
       <div className="space-y-2">
         {activeProjects.map((project) => (
-          <div key={project.id} className="space-y-1">
-            <div
-              className={`flex items-center gap-2 p-2 rounded-lg hover:bg-primary/10 transition ${
-                activeProject === project.id ? "bg-primary/20 text-primary" : ""
-              }`}
-            >
-              <Button
-                variant="ghost"
-                className="w-full justify-start text-left"
-                onClick={() => onProjectSelect(project.id)}
-              >
-                <FolderIcon className="mr-2 h-4 w-4" />
-                {project.name}
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8"
-                onClick={() => toggleProject(project.id)}
-              >
-                <ChevronDown
-                  className={`h-4 w-4 transition-transform ${
-                    expandedProjects.includes(project.id) ? "rotate-180" : ""
-                  }`}
-                />
-              </Button>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-8 w-8">
-                    <MoreVertical className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem>
-                    <Share className="mr-2 h-4 w-4" /> Share
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleRename(project.id, project.name)}>
-                    <Pencil className="mr-2 h-4 w-4" /> Rename
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onProjectArchive?.(project.id)}>
-                    <Archive className="mr-2 h-4 w-4" /> Archive
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleDelete(project.id)} className="text-destructive">
-                    <Trash2 className="mr-2 h-4 w-4" /> Delete
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-
-            {expandedProjects.includes(project.id) && (
-              <div className="pl-8 space-y-1">
-                <Button
-                  variant="ghost"
-                  className="w-full justify-start text-sm text-muted-foreground"
-                  onClick={() => toggleFiles(project.id)}
-                >
-                  <FolderIcon className="mr-2 h-4 w-4" />
-                  Files
-                  <ChevronDown
-                    className={`ml-2 h-4 w-4 transition-transform ${
-                      expandedFiles.includes(project.id) ? "rotate-180" : ""
-                    }`}
-                  />
-                </Button>
-                
-                {expandedFiles.includes(project.id) && project.files && (
-                  <div className="pl-4 space-y-1">
-                    {project.files.map((file, index) => (
-                      <div key={index} className="flex items-center gap-2 text-sm text-muted-foreground p-1 rounded-md hover:bg-primary/5">
-                        <File className="h-3 w-3" />
-                        {file}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
+          <ProjectItem
+            key={project.id}
+            project={project}
+            isActive={activeProject === project.id}
+            onProjectSelect={onProjectSelect}
+            onProjectArchive={onProjectArchive}
+            onProjectRename={handleRename}
+            onProjectDelete={handleDelete}
+          />
         ))}
       </div>
 
@@ -226,7 +100,7 @@ export const ProjectSidebar = ({
                   className="w-full justify-start opacity-50"
                   onClick={() => onProjectSelect(project.id)}
                 >
-                  <FolderIcon className="mr-2 h-4 w-4" />
+                  <Archive className="mr-2 h-4 w-4" />
                   {project.name}
                 </Button>
                 <Button
