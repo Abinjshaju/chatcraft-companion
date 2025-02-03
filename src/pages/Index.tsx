@@ -141,6 +141,7 @@ const Index = () => {
         onProjectArchive={handleProjectArchive}
         onProjectUnarchive={handleProjectUnarchive}
         onFileUpload={handleFileUpload}
+        setProjects={setProjects}
       />
 
       <div className="flex-1 flex flex-col">

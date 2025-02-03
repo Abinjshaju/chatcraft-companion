@@ -27,6 +27,7 @@ interface ProjectSidebarProps {
   onProjectArchive?: (projectId: string) => void;
   onProjectUnarchive?: (projectId: string) => void;
   onFileUpload?: (projectId: string, file: File) => void;
+  setProjects: React.Dispatch<React.SetStateAction<Project[]>>;
 }
 
 export const ProjectSidebar = ({
@@ -37,6 +38,7 @@ export const ProjectSidebar = ({
   onProjectArchive,
   onProjectUnarchive,
   onFileUpload,
+  setProjects,
 }: ProjectSidebarProps) => {
   const [isCreating, setIsCreating] = useState(false);
   const [newProjectName, setNewProjectName] = useState("");
