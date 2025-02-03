@@ -65,3 +65,16 @@
 .chat-container {
   height: calc(100vh - 180px);
 }
+
+// Add new styles for file hover and selection effects
+.file-item {
+  @apply transition-colors duration-200;
+}
+
+.file-item:hover {
+  @apply bg-primary/10;
+}
+
+.file-item.selected {
+  @apply bg-primary/20 text-primary;
+}
