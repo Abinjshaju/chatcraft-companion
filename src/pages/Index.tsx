@@ -5,11 +5,17 @@ import { EmptyStateView } from "@/components/EmptyStateView";
 import { ChatMessagesArea } from "@/components/ChatMessagesArea";
 import { useToast } from "@/hooks/use-toast";
 import { toast as sonnerToast } from "sonner";
+import {
+  ResizablePanelGroup,
+  ResizablePanel,
+  ResizableHandle,
+} from "@/components/ui/resizable";
 
 interface Message {
   id: string;
   content: string;
   isUser: boolean;
+  timestamp: Date;
 }
 
 interface Project {
@@ -44,24 +50,70 @@ const Index = () => {
   const handleSendMessage = (content: string) => {
     if (!activeProject) return;
 
+    const newMessage: Message = {
+      id: Date.now().toString(),
+      content,
+      isUser: true,
+      timestamp: new Date(),
+    };
+
+    const aiResponse: Message = {
+      id: (Date.now() + 1).toString(),
+      content: "This is a mock response. The AI integration will be implemented in the next version.",
+      isUser: false,
+      timestamp: new Date(),
+    };
+
     setProjects(
       projects.map((project) =>
         project.id === activeProject
           ? {
               ...project,
-              messages: [
-                ...project.messages,
-                { id: Date.now().toString(), content, isUser: true },
-                {
-                  id: (Date.now() + 1).toString(),
-                  content: "This is a mock response. The AI integration will be implemented in the next version.",
-                  isUser: false,
-                },
-              ],
+              messages: [...project.messages, newMessage, aiResponse],
             }
           : project
       )
     );
+  };
+
+  const handleEditMessage = (messageId: string, newContent: string) => {
+    if (!activeProject) return;
+
+    setProjects(
+      projects.map((project) =>
+        project.id === activeProject
+          ? {
+              ...project,
+              messages: project.messages.map((msg) =>
+                msg.id === messageId ? { ...msg, content: newContent } : msg
+              ),
+            }
+          : project
+      )
+    );
+
+    sonnerToast.success("Message updated", {
+      position: "top-right",
+    });
+  };
+
+  const handleDeleteMessage = (messageId: string) => {
+    if (!activeProject) return;
+
+    setProjects(
+      projects.map((project) =>
+        project.id === activeProject
+          ? {
+              ...project,
+              messages: project.messages.filter((msg) => msg.id !== messageId),
+            }
+          : project
+      )
+    );
+
+    sonnerToast.success("Message deleted", {
+      position: "top-right",
+    });
   };
 
   const handleFileUpload = (projectId: string, file: File) => {
@@ -133,39 +185,49 @@ const Index = () => {
 
   return (
     <div className="flex h-screen bg-background font-sans">
-      <ProjectSidebar
-        projects={projects}
-        activeProject={activeProject}
-        onProjectSelect={setActiveProject}
-        onProjectCreate={handleCreateProject}
-        onProjectArchive={handleProjectArchive}
-        onProjectUnarchive={handleProjectUnarchive}
-        onFileUpload={handleFileUpload}
-        setProjects={setProjects}
-      />
-
-      <div className="flex-1 flex flex-col">
-        {activeProject ? (
-          <>
-            {hasMessages ? (
-              <ChatMessagesArea 
-                messages={activeProjectData?.messages || []}
-                projectName={activeProjectData?.name || ''}
-              />
+      <ResizablePanelGroup direction="horizontal">
+        <ResizablePanel defaultSize={20} minSize={15} maxSize={40}>
+          <ProjectSidebar
+            projects={projects}
+            activeProject={activeProject}
+            onProjectSelect={setActiveProject}
+            onProjectCreate={handleCreateProject}
+            onProjectArchive={handleProjectArchive}
+            onProjectUnarchive={handleProjectUnarchive}
+            onFileUpload={handleFileUpload}
+            setProjects={setProjects}
+          />
+        </ResizablePanel>
+        
+        <ResizableHandle withHandle />
+        
+        <ResizablePanel defaultSize={80}>
+          <div className="flex-1 flex flex-col h-full">
+            {activeProject ? (
+              <>
+                {hasMessages ? (
+                  <ChatMessagesArea 
+                    messages={activeProjectData?.messages || []}
+                    projectName={activeProjectData?.name || ''}
+                    onEditMessage={handleEditMessage}
+                    onDeleteMessage={handleDeleteMessage}
+                  />
+                ) : (
+                  <EmptyStateView onQuickAction={handleQuickAction} />
+                )}
+                <ChatInput 
+                  onSendMessage={handleSendMessage}
+                  onFileUpload={(file) => activeProject && handleFileUpload(activeProject, file)}
+                />
+              </>
             ) : (
-              <EmptyStateView onQuickAction={handleQuickAction} />
+              <div className="flex-1 flex items-center justify-center text-muted-foreground">
+                Select or create a project to start chatting
+              </div>
             )}
-            <ChatInput 
-              onSendMessage={handleSendMessage}
-              onFileUpload={(file) => activeProject && handleFileUpload(activeProject, file)}
-            />
-          </>
-        ) : (
-          <div className="flex-1 flex items-center justify-center text-muted-foreground">
-            Select or create a project to start chatting
           </div>
-        )}
-      </div>
+        </ResizablePanel>
+      </ResizablePanelGroup>
     </div>
   );
 };
